@@ -1,7 +1,7 @@
 # 4sem_fullstackjs
 Git repository for 4 sem course fullstack javascript/typescript 
 
-# Hand-in1 
+# Hand-in 1 
 ### Notes from P1 learning goals 
 In the folder "period 1" there is a PDF file containing all notes containing the learning goals for this period. 
 
