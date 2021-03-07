@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@types/node": "^14.14.31",
+    "@types/node-fetch": "^2.5.8",
+    "and": "^0.0.3",
+    "install": "^0.13.0",
+    "node-fetch": "^2.6.1",
+    "npm": "^7.6.1"
+  }
+}
