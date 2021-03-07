@@ -14,4 +14,4 @@ You might have to login to notion to see the notebook.
 The notebook will be updated with more information as the semester goes on. 
 
 
-## Later on there will be added more learning goals to this repository
+## Later on there will be added more learning goals to this repository from the other periods
