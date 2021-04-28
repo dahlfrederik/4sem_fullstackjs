@@ -56,7 +56,7 @@ router.put("/:email", async function (req: any, res, next) {
 router.get("/find-user/:email", async (req: any, res, next) => {
   const userId = req.params.userid;
   try {
-    facade.getFrind(userId);
+    facade.getFriend(userId);
   } catch (err) {
     debug(err);
     if (err instanceof ApiError) {

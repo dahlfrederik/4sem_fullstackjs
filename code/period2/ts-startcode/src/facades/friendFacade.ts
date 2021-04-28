@@ -3,7 +3,6 @@ import { Db, Collection } from "mongodb";
 import bcrypt from "bcryptjs";
 import { ApiError } from "../errors/apiError";
 import Joi, { ValidationError } from "joi";
-import debug from "debug";
 
 const BCRYPT_ROUNDS = 10;
 
@@ -33,13 +32,16 @@ class FriendsFacade {
       throw new ApiError(status.error.message, 400);
     }
     const hashedpw = await bcrypt.hash(friend.password, BCRYPT_ROUNDS);
-    const f = { ...friend, password: hashedpw, role: "user" };
-    const user = await this.friendCollection.insertOne(f);
-    return user.insertedId;
+    const f = { ...friend, password: hashedpw };
+
+    try {
+      return await (await this.friendCollection.insertOne(f)).insertedId;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   /**
-   * TODO
    * @param email
    * @param friend
    * @throws ApiError if validation fails or friend was not found
@@ -55,17 +57,20 @@ class FriendsFacade {
     const hashedpw = await bcrypt.hash(friend.password, BCRYPT_ROUNDS);
     const f = { ...friend, password: hashedpw };
 
-    let query = { firstName: f.firstName };
-    let newValue = {
-      $set: {
-        firstName: f.firstName,
-        lastName: f.lastName,
-        email: f.email,
-        password: f.password,
-      },
-    };
-
-    return await this.friendCollection.updateOne(query, newValue);
+    try {
+      let friendToEdit = { email: email };
+      let friendUpdate = {
+        $set: {
+          firstName: f.firstName,
+          lastName: f.lastName,
+          password: f.password,
+          email: f.email,
+        },
+      };
+      return await this.friendCollection.updateOne(friendToEdit, friendUpdate);
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   /**
@@ -75,17 +80,24 @@ class FriendsFacade {
    */
   async deleteFriend(friendEmail: string): Promise<boolean> {
     try {
-      await this.friendCollection.deleteOne({ email: friendEmail });
-      return true;
-    } catch (err) {
-      debug("ERROR DELETING FRIEND");
-      return false;
+      const deleteFriend = await this.friendCollection.deleteOne({
+        email: friendEmail,
+      });
+      if (deleteFriend.deletedCount == 1) {
+        return true;
+      } else return false;
+    } catch (error) {
+      throw new Error(error);
     }
   }
 
   async getAllFriends(): Promise<Array<IFriend>> {
-    const users: unknown = await this.friendCollection.find({}).toArray();
-    return users as Array<IFriend>;
+    try {
+      const users: unknown = await this.friendCollection.find({}).toArray();
+      return users as Array<IFriend>;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   /**
@@ -94,14 +106,15 @@ class FriendsFacade {
    * @returns
    * @throws ApiError if not found
    */
-  async getFrind(friendEmail: string): Promise<IFriend | null> {
-    const friend: IFriend = await this.friendCollection.findOne({
-      email: friendEmail,
-    });
-    if (friend) {
+  async getFriend(friendEmail: string): Promise<IFriend> {
+    try {
+      const friend: IFriend = await this.friendCollection.findOne({
+        email: friendEmail,
+      });
       return friend;
+    } catch (error) {
+      throw new Error(error);
     }
-    return Promise.resolve(null);
   }
 
   /**
@@ -110,7 +123,6 @@ class FriendsFacade {
    * @param password
    * @returns the user if he could be authenticated, otherwise null
    */
-
   async getVerifiedUser(
     friendEmail: string,
     password: string
